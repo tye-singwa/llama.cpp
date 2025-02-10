@@ -2643,8 +2643,10 @@ struct llm_build_context {
         inpL = llm_build_inp_embd(ctx0, lctx, hparams, ubatch, model.tok_embd, cb);
 
         // token types are hardcoded to zero ("Sentence A")
-        struct ggml_tensor * type_row0 = ggml_view_1d(ctx0, model.type_embd, n_embd, 0);
-        inpL = ggml_add(ctx0, inpL, type_row0);
+        if (model.arch != LLM_ARCH_MODERNBERT) {
+            struct ggml_tensor * type_row0 = ggml_view_1d(ctx0, model.type_embd, n_embd, 0);
+            inpL = ggml_add(ctx0, inpL, type_row0);
+        }
         if (model.arch == LLM_ARCH_BERT) {
             inpL = ggml_add(ctx0, ggml_get_rows(ctx0, model.pos_embd, inp_pos), inpL);
         }
@@ -2659,11 +2661,18 @@ struct llm_build_context {
 
         // iterate layers
         for (int il = 0; il < n_layer; ++il) {
-            struct ggml_tensor * cur = inpL;
-
             struct ggml_tensor * Qcur;
             struct ggml_tensor * Kcur;
             struct ggml_tensor * Vcur;
+            
+            cur = inpL;
+            if (model.arch == LLM_ARCH_MODERNBERT) {
+                cur = llm_build_norm(ctx0, inpL, hparams,
+                        model.layers[il].attn_norm,
+                        model.layers[il].attn_norm_b,
+                        LLM_NORM, cb, il);
+                cb(cur, "attn_norm", il);
+            }
 
             // self-attention
             if (model.arch == LLM_ARCH_BERT || model.arch == LLM_ARCH_JINA_BERT_V2) {
@@ -2786,6 +2795,13 @@ struct llm_build_context {
                         model.layers[il].ffn_up,   NULL,                        NULL,
                         model.layers[il].ffn_gate, NULL,                        NULL,
                         model.layers[il].ffn_down, model.layers[il].ffn_down_b, NULL,
+                        NULL,
+                        LLM_FFN_GELU, LLM_FFN_PAR, cb, il);
+            } else if (model.arch == LLM_ARCH_MODERNBERT) {
+                cur = llm_build_ffn(ctx0, lctx, cur,
+                        model.layers[il].ffn_up,   NULL,                        NULL,
+                        model.layers[il].ffn_gate, NULL,                        NULL,
+                        model.layers[il].ffn_down, NULL,                        NULL,
                         NULL,
                         LLM_FFN_GELU, LLM_FFN_PAR, cb, il);
             } else {
@@ -8225,6 +8241,7 @@ static struct ggml_cgraph * llama_build_graph(
         case LLM_ARCH_BERT:
         case LLM_ARCH_JINA_BERT_V2:
         case LLM_ARCH_NOMIC_BERT:
+        case LLM_ARCH_MODERNBERT:
             {
                 result = llm.build_bert();
             } break;

@@ -699,6 +699,9 @@ class Model:
         if chkhsh == "b3f499bb4255f8ca19fccd664443283318f2fd2414d5e0b040fbdd0cc195d6c5":
             # ref: https://huggingface.co/deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B
             res = "deepseek-r1-qwen"
+        if chkhsh == "a0b64b4385f123663873756336c085744376d015ff328bb1d901598f63c44152":
+            # ref: https://huggingface.co/nomic-ai/modernbert-embed-base
+            res = "modernbert"
 
         if res is None:
             logger.warning("\n")
@@ -3107,6 +3110,55 @@ class NomicBertModel(BertModel):
         super().set_gguf_parameters()
         self.gguf_writer.add_rope_freq_base(self.hparams["rotary_emb_base"])
 
+
+@Model.register("ModernBertModel")
+class ModernBertModel(BertModel):
+    model_arch = gguf.MODEL_ARCH.MODERNBERT
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        from pprint import pp 
+        pp(self.hparams)
+        self._n_embd = self.hparams["intermediate_size"]
+
+        # GELU activation
+        assert self.hparams["hidden_activation"] == "gelu"
+        # no bias tensors except decoder
+        assert self.hparams["attention_bias"] is False
+        assert self.hparams["mlp_bias"] is False
+        assert self.hparams["norm_bias"] is False
+        assert self.hparams["decoder_bias"] is True
+        # local RoPE
+        assert self.hparams["local_rope_theta"] is not None
+        assert self.hparams["global_rope_theta"] is not None
+    
+    def set_vocab(self):
+        self._set_vocab_gpt2()
+        self.gguf_writer.add_token_type_count(2)
+        self.gguf_writer.add_add_bos_token(True)
+        self.gguf_writer.add_add_eos_token(True)
+
+    def modify_tensors(self, data_torch: Tensor, name: str, bid: int | None) -> Iterable[tuple[str, Tensor]]:
+        # split ff
+        print(f"{name = }")
+        if bid is not None and name == f"layers.{bid}.mlp.Wi.weight":
+            ff_dim = self._n_embd
+            yield (self.format_tensor_name(gguf.MODEL_TENSOR.FFN_GATE, bid), data_torch[:ff_dim])
+            yield (self.format_tensor_name(gguf.MODEL_TENSOR.FFN_UP, bid), data_torch[ff_dim:])
+            return
+
+        for tensor in super().modify_tensors(data_torch, name, bid):
+            yield tensor
+        
+
+    def set_gguf_parameters(self):
+        super().set_gguf_parameters()
+        self.gguf_writer.add_global_attn_every_n_layers(self.hparams["global_attn_every_n_layers"])
+        self.gguf_writer.add_local_context_length(self.hparams["local_attention"])
+        self.gguf_writer.add_rope_freq_base(self.hparams["global_rope_theta"])
+        self.gguf_writer.add_rope_local_freq_base(self.hparams["local_rope_theta"])
+        
 
 @Model.register("XLMRobertaModel", "XLMRobertaForSequenceClassification")
 class XLMRobertaModel(BertModel):

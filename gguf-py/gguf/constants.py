@@ -89,6 +89,7 @@ class Keys:
     class LLM:
         VOCAB_SIZE                        = "{arch}.vocab_size"
         CONTEXT_LENGTH                    = "{arch}.context_length"
+        LOCAL_CONTEXT_LENGTH              = "{arch}.local_context_length"
         EMBEDDING_LENGTH                  = "{arch}.embedding_length"
         FEATURES_LENGTH                   = "{arch}.features_length"
         BLOCK_COUNT                       = "{arch}.block_count"
@@ -111,6 +112,7 @@ class Keys:
         FINAL_LOGIT_SOFTCAPPING           = "{arch}.final_logit_softcapping"
         SWIN_NORM                         = "{arch}.swin_norm"
         RESCALE_EVERY_N_LAYERS            = "{arch}.rescale_every_n_layers"
+        GLOBAL_ATTN_EVERY_N_LAYERS        = "{arch}.global_attn_every_n_layers"
         TIME_MIX_EXTRA_DIM                = "{arch}.time_mix_extra_dim"
         TIME_DECAY_EXTRA_DIM              = "{arch}.time_decay_extra_dim"
         RESIDUAL_SCALE                    = "{arch}.residual_scale"
@@ -139,6 +141,7 @@ class Keys:
         DIMENSION_COUNT         = "{arch}.rope.dimension_count"
         DIMENSION_SECTIONS      = "{arch}.rope.dimension_sections"
         FREQ_BASE               = "{arch}.rope.freq_base"
+        LOCAL_FREQ_BASE         = "{arch}.rope.local_freq_base"
         SCALING_TYPE            = "{arch}.rope.scaling.type"
         SCALING_FACTOR          = "{arch}.rope.scaling.factor"
         SCALING_ATTN_FACTOR     = "{arch}.rope.scaling.attn_factor"
@@ -236,6 +239,7 @@ class MODEL_ARCH(IntEnum):
     BERT             = auto()
     NOMIC_BERT       = auto()
     JINA_BERT_V2     = auto()
+    MODERNBERT       = auto()
     BLOOM            = auto()
     STABLELM         = auto()
     QWEN             = auto()
@@ -422,6 +426,7 @@ MODEL_ARCH_NAMES: dict[MODEL_ARCH, str] = {
     MODEL_ARCH.REFACT:           "refact",
     MODEL_ARCH.BERT:             "bert",
     MODEL_ARCH.NOMIC_BERT:       "nomic-bert",
+    MODEL_ARCH.MODERNBERT:       "modernbert",
     MODEL_ARCH.JINA_BERT_V2:     "jina-bert-v2",
     MODEL_ARCH.BLOOM:            "bloom",
     MODEL_ARCH.STABLELM:         "stablelm",
@@ -738,6 +743,21 @@ MODEL_TENSORS: dict[MODEL_ARCH, list[MODEL_TENSOR]] = {
         MODEL_TENSOR.FFN_DOWN,
         MODEL_TENSOR.FFN_UP,
         MODEL_TENSOR.LAYER_OUT_NORM,
+    ],
+    MODEL_ARCH.MODERNBERT: [
+        MODEL_TENSOR.TOKEN_EMBD,
+        MODEL_TENSOR.TOKEN_EMBD_NORM,
+        # MODEL_TENSOR.TOKEN_TYPES,
+        MODEL_TENSOR.ATTN_NORM,
+        MODEL_TENSOR.OUTPUT_NORM,
+        MODEL_TENSOR.ATTN_OUT_NORM,
+        MODEL_TENSOR.ATTN_QKV,
+        MODEL_TENSOR.ATTN_OUT,
+        MODEL_TENSOR.FFN_UP,
+        MODEL_TENSOR.FFN_GATE,
+        MODEL_TENSOR.FFN_DOWN,
+        # ODEL_TENSOR.CLS,
+        # MODEL_TENSOR.CLS_OUT,
     ],
     MODEL_ARCH.JINA_BERT_V2: [
         MODEL_TENSOR.TOKEN_EMBD,

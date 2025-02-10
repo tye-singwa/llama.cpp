@@ -626,8 +626,11 @@ class GGUFWriter:
     def add_vocab_size(self, size: int) -> None:
         self.add_uint32(Keys.LLM.VOCAB_SIZE.format(arch=self.arch), size)
 
-    def add_context_length(self, length: int) -> None:
-        self.add_uint32(Keys.LLM.CONTEXT_LENGTH.format(arch=self.arch), length)
+    def add_context_length(self, local_length: int) -> None:
+        self.add_uint32(Keys.LLM.CONTEXT_LENGTH.format(arch=self.arch), local_length)
+
+    def add_local_context_length(self, length: int) -> None:
+        self.add_uint32(Keys.LLM.LOCAL_CONTEXT_LENGTH.format(arch=self.arch), length)
 
     def add_embedding_length(self, length: int) -> None:
         self.add_uint32(Keys.LLM.EMBEDDING_LENGTH.format(arch=self.arch), length)
@@ -728,6 +731,9 @@ class GGUFWriter:
     def add_rescale_every_n_layers(self, count: int) -> None:
         self.add_uint32(Keys.LLM.RESCALE_EVERY_N_LAYERS.format(arch=self.arch), count)
 
+    def add_global_attn_every_n_layers(self, count: int) -> None:
+        self.add_uint32(Keys.LLM.GLOBAL_ATTN_EVERY_N_LAYERS.format(arch=self.arch), count)
+
     def add_time_mix_extra_dim(self, dim: int) -> None:
         self.add_uint32(Keys.LLM.TIME_MIX_EXTRA_DIM.format(arch=self.arch), dim)
 
@@ -787,6 +793,9 @@ class GGUFWriter:
 
     def add_rope_freq_base(self, value: float) -> None:
         self.add_float32(Keys.Rope.FREQ_BASE.format(arch=self.arch), value)
+
+    def add_rope_local_freq_base(self, value: float) -> None:
+        self.add_float32(Keys.Rope.LOCAL_FREQ_BASE.format(arch=self.arch), value)
 
     def add_rope_scaling_type(self, value: RopeScalingType) -> None:
         self.add_string(Keys.Rope.SCALING_TYPE.format(arch=self.arch), value.value)

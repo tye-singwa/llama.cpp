@@ -85,6 +85,7 @@ llama_test(test-tokenizer-0 NAME test-tokenizer-0-phi-3             ARGS ${CMAKE
 llama_test(test-tokenizer-0 NAME test-tokenizer-0-qwen2             ARGS ${CMAKE_CURRENT_SOURCE_DIR}/../models/ggml-vocab-qwen2.gguf)
 llama_test(test-tokenizer-0 NAME test-tokenizer-0-refact            ARGS ${CMAKE_CURRENT_SOURCE_DIR}/../models/ggml-vocab-refact.gguf)
 llama_test(test-tokenizer-0 NAME test-tokenizer-0-starcoder         ARGS ${CMAKE_CURRENT_SOURCE_DIR}/../models/ggml-vocab-starcoder.gguf)
+llama_test(test-tokenizer-0 NAME test-tokenizer-0-modernbert-embed  ARGS ${CMAKE_CURRENT_SOURCE_DIR}/../models/ggml-vocab-modernbert-embed.gguf)
 
 if (LLAMA_LLGUIDANCE)
     llama_target_and_test(test-grammar-llguidance.cpp ARGS ${CMAKE_CURRENT_SOURCE_DIR}/../models/ggml-vocab-llama-bpe.gguf)

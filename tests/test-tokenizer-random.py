@@ -529,32 +529,33 @@ if __name__ == "__main__":
     path_vocab_format = "./models/ggml-vocab-%s.gguf"
 
     tokenizers = [
-        "llama-spm",      # SPM
-        "phi-3",          # SPM
-        "gemma",          # SPM
-        "gemma-2",        # SPM
-        "baichuan",       # SPM
-        "bert-bge",       # WPM
-        "jina-v2-en",     # WPM
-        "llama-bpe",      # BPE
-        "phi-2",          # BPE
-        "deepseek-llm",   # BPE
-        "deepseek-coder", # BPE
-        "falcon",         # BPE
-        "mpt",            # BPE
-        "starcoder",      # BPE
-        "gpt-2",          # BPE
-        "stablelm2",      # BPE
-        "refact",         # BPE
-        "qwen2",          # BPE
-        "olmo",           # BPE
-        "jina-v2-es",     # BPE
-        "jina-v2-de",     # BPE
-        "smaug-bpe",      # BPE
-        "poro-chat",      # BPE
-        "jina-v2-code",   # BPE
-        "viking",         # BPE
-        "jais",           # BPE
+        "llama-spm",        # SPM
+        "phi-3",            # SPM
+        "gemma",            # SPM
+        "gemma-2",          # SPM
+        "baichuan",         # SPM
+        "bert-bge",         # WPM
+        "jina-v2-en",       # WPM
+        "llama-bpe",        # BPE
+        "phi-2",            # BPE
+        "deepseek-llm",     # BPE
+        "deepseek-coder",   # BPE
+        "falcon",           # BPE
+        "mpt",              # BPE
+        "starcoder",        # BPE
+        "gpt-2",            # BPE
+        "stablelm2",        # BPE
+        "refact",           # BPE
+        "qwen2",            # BPE
+        "olmo",             # BPE
+        "jina-v2-es",       # BPE
+        "jina-v2-de",       # BPE
+        "smaug-bpe",        # BPE
+        "poro-chat",        # BPE
+        "jina-v2-code",     # BPE
+        "viking",           # BPE
+        "jais",             # BPE
+        "modernbert-embed", # BPE
     ]
 
     logger.info("=" * 50)

@@ -341,6 +341,7 @@ struct llm_tokenizer_bpe : llm_tokenizer {
             case LLAMA_VOCAB_PRE_TYPE_MPT:
             case LLAMA_VOCAB_PRE_TYPE_OLMO:
             case LLAMA_VOCAB_PRE_TYPE_JAIS:
+            case LLAMA_VOCAB_PRE_TYPE_MODERNBERT:
                 regex_exprs = {
                     "'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N}+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)",
                 };
@@ -1380,15 +1381,27 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
             special_pad_id  = LLAMA_TOKEN_NULL;
             special_mask_id = LLAMA_TOKEN_NULL;
         } else if (tokenizer_model == "bert") {
-            type = LLAMA_VOCAB_TYPE_WPM;
+            if (tokenizer_pre == "modernbert") {
+                type = LLAMA_VOCAB_TYPE_BPE;
 
-            // default special tokens
-            special_bos_id  = 101;
-            special_eos_id  = LLAMA_TOKEN_NULL;
-            special_unk_id  = 100;
-            special_sep_id  = 102;
-            special_pad_id  = 0;
-            special_mask_id = 103;
+                // default special tokens
+                special_bos_id  = 50281;
+                special_eos_id  = 50282;
+                special_unk_id  = 50280;
+                special_sep_id  = 50282;
+                special_pad_id  = 50283;
+                special_mask_id = 50284;
+            } else {
+                type = LLAMA_VOCAB_TYPE_WPM;
+    
+                // default special tokens
+                special_bos_id  = 101;
+                special_eos_id  = LLAMA_TOKEN_NULL;
+                special_unk_id  = 100;
+                special_sep_id  = 102;
+                special_pad_id  = 0;
+                special_mask_id = 103;
+            }
         } else if (tokenizer_model == "gpt2") {
             type = LLAMA_VOCAB_TYPE_BPE;
 
@@ -1520,6 +1533,9 @@ void llama_vocab::impl::load(llama_model_loader & ml, const LLM_KV & kv) {
                     tokenizer_pre == "jina-v2-code" ||
                     tokenizer_pre == "roberta-bpe") {
                 pre_type = LLAMA_VOCAB_PRE_TYPE_GPT2;
+            } else if (
+                tokenizer_pre == "modernbert") {
+                pre_type = LLAMA_VOCAB_PRE_TYPE_MODERNBERT;
             } else if (
                     tokenizer_pre == "refact") {
                 pre_type = LLAMA_VOCAB_PRE_TYPE_REFACT;
